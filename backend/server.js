@@ -9,19 +9,22 @@ wss.on('connection', (ws) => {
 
     ws.on('message', (message, isBinary) => {
         if (isBinary) {
-            // 收到的是原始音频流 (Int16 PCM)
-            // console.log(`🎙️ 收到音频流数据片，大小: ${message.length} 字节`);
-            // TODO: 这里后续接入本地 VAD 或直接转发给 AI Cloud 实时语音 API
+            console.log(`🎙️ [收到有效音频] 大小: ${message.length} 字节`);
+            // TODO: 直接转发给大模型 Live API 
         } else {
-            // 收到的是 JSON 字符串（视频帧或其他控制文本）
             try {
                 const obj = JSON.parse(message.toString());
+                
                 if (obj.type === 'video') {
-                    console.log(`📸 收到视频关键帧 [Base64], 长度: ${obj.data.length}`);
-                    // TODO: 后续在这里做【帧差法】对比，画面没变就不调大模型，节省 Token！
-                    
-                    // 模拟 AI 发现了东西，给前端一个假回应
-                    ws.send("AI 正在看着你呢...");
+                    console.log(`📸 收到视频帧 [Base64], 长度: ${obj.data.length}`);
+                } 
+
+                else if (obj.type === 'control') {
+                    if (obj.action === 'speech_start') {
+                        console.log("⚠️ [后端收到指令] 用户开始说话：如果 AI 正在播放声音，应立即执行打断(Barge-in)！");
+                    } else if (obj.action === 'speech_stop') {
+                        console.log("🛑 [后端收到指令] 用户说完了：准备让大模型根据收到的音频和画面进行最终推理...");
+                    }
                 }
             } catch (e) {
                 console.error("解析 JSON 失败", e);

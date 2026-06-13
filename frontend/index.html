@@ -110,22 +110,55 @@
         }, 500); // 500ms 一张图
 
         // --- 音频流实时采集 (Web Audio API) ---
-        audioContext = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 }); 
+        audioContext = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 });
         const source = audioContext.createMediaStreamSource(mediaStream);
         
-        // 创建一个音频处理器（此处先用基础节点，后续可在这一步加入本地 VAD）
         audioProcessor = audioContext.createScriptProcessor(4096, 1, 1);
         source.connect(audioProcessor);
         audioProcessor.connect(audioContext.destination);
 
+        // VAD 核心参数配置
+        const VAD_THRESHOLD = 0.02; // 声音能量门限（根据环境噪音大小调整，通常0.01~0.05）
+        const SILENCE_DELAY = 20;   // 容忍的连续静音帧数（约500ms），防止说话语速慢被切断
+        let silenceCount = 0;
+        let isSpeaking = false;
+
         audioProcessor.onaudioprocess = (e) => {
-            if (ws && ws.readyState === WebSocket.OPEN) {
-                const inputData = e.inputBuffer.getChannelData(0);
+            if (!ws || ws.readyState !== WebSocket.OPEN) return;
+
+            const inputData = e.inputBuffer.getChannelData(0);
+            
+            // 1. 计算当前音频片段的均方根能量 (RMS - Root Mean Square)
+            let sum = 0;
+            for (let i = 0; i < inputData.length; i++) {
+                sum += inputData[i] * inputData[i];
+            }
+            const rms = Math.sqrt(sum / inputData.length);
+
+            // 2. VAD 状态机判断
+            if (rms > VAD_THRESHOLD) {
+                silenceCount = 0; 
+                if (!isSpeaking) {
+                    isSpeaking = true;
+                    log("🎙️ [VAD] 检测到用户开始说话...");
+                    ws.send(JSON.stringify({ type: 'control', action: 'speech_start' }));
+                }
+            } else {
+                // 音量低于门限，可能是静音
+                silenceCount++;
+                if (isSpeaking && silenceCount > SILENCE_DELAY) {
+                    isSpeaking = false;
+                    log("🤫 [VAD] 检测到用户停止说话，进入静音状态。");
+                    ws.send(JSON.stringify({ type: 'control', action: 'speech_stop' }));
+                }
+            }
+
+            // 3. 核心控本：只有处于“正在说话”状态，才向后端发送音频二进制流
+            if (isSpeaking) {
                 const Int16Buffer = new Int16Array(inputData.length);
                 for (let i = 0; i < inputData.length; i++) {
                     Int16Buffer[i] = Math.min(1, Math.max(-1, inputData[i])) * 0x7FFF;
                 }
-        
                 ws.send(Int16Buffer.buffer);
             }
         };
