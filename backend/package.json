@@ -1,16 +1,18 @@
 {
-  "name": "backend",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "name": "multimodal-ai-voice-assistant-backend",
+  "version": "2.0.0",
+  "description": "Gemini Live API 实时多模态语音助手后端中继服务器",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server.js",
+    "dev": "node server.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "dotenv": "^17.4.2",
     "ws": "^8.21.0"
   }
 }
