@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>实时多模态 AI 语音助手</title>
-    <meta name="description" content="基于 Gemini Live API 的实时多模态语音视觉交互助手">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>端云协同成本控制 AI 助手</title>
+    <meta name="description" content="基于 Gemini Live 与 REST API 的双轨智能路由成本控制语音助手">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: 'Inter', -apple-system, sans-serif;
-            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            background: linear-gradient(135deg, #0a0813, #151226, #0e0b1c);
             min-height: 100vh;
-            color: #e0e0e0;
+            color: #e2e8f0;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -22,63 +22,129 @@
 
         .app {
             width: 100%;
-            max-width: 520px;
+            max-width: 540px;
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 16px;
         }
 
         /* Header */
         .header {
             text-align: center;
-            padding: 10px 0;
+            padding: 8px 0;
         }
         .header h1 {
-            font-size: 22px;
+            font-size: 24px;
             font-weight: 700;
-            background: linear-gradient(90deg, #7f5af0, #2cb67d);
+            background: linear-gradient(90deg, #9f7aea, #38b2ac);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             margin-bottom: 4px;
         }
         .header .subtitle {
             font-size: 12px;
-            color: #72757e;
+            color: #718096;
             font-weight: 300;
         }
 
-        /* Status Badge */
+        /* Status & Configuration Bar */
         .status-bar {
             display: flex;
-            justify-content: center;
-            gap: 12px;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
         }
         .badge {
             display: flex;
             align-items: center;
             gap: 6px;
-            padding: 5px 14px;
+            padding: 6px 12px;
             border-radius: 20px;
             font-size: 11px;
             font-weight: 500;
-            background: rgba(255,255,255,0.06);
-            border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
         }
         .badge .dot {
             width: 7px; height: 7px;
             border-radius: 50%;
-            background: #ef4444;
+            background: #e53e3e;
         }
-        .badge .dot.connected { background: #2cb67d; animation: pulse-dot 2s infinite; }
+        .badge .dot.connected { background: #38b2ac; animation: pulse-dot 2s infinite; }
         @keyframes pulse-dot {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.4; }
         }
 
-        /* Glass Card */
+        /* Mode Selector */
+        .mode-selector {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            padding: 4px;
+            display: flex;
+            gap: 4px;
+        }
+        .mode-btn {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 8px;
+            background: transparent;
+            color: #718096;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .mode-btn.active {
+            background: rgba(159, 122, 234, 0.15);
+            color: #b794f4;
+            border: 1px solid rgba(159, 122, 234, 0.25);
+        }
+
+        /* Cost Dashboard */
+        .cost-dashboard {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 16px;
+            padding: 16px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .metric-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 10px;
+            padding: 10px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .metric-label {
+            font-size: 10px;
+            color: #718096;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .metric-val {
+            font-size: 16px;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .metric-val.green { color: #38b2ac; }
+        .metric-val.purple { color: #b794f4; }
+        .metric-sub {
+            font-size: 9px;
+            color: #4a5568;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Main Glass Card */
         .card {
-            background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 16px;
             backdrop-filter: blur(20px);
             overflow: hidden;
@@ -88,7 +154,7 @@
         .video-wrap {
             position: relative;
             aspect-ratio: 16/10;
-            background: #000;
+            background: #050409;
         }
         .video-wrap video {
             width: 100%; height: 100%;
@@ -102,7 +168,18 @@
             background: rgba(0,0,0,0.6);
             border-radius: 8px;
             font-size: 10px;
-            color: #aaa;
+            color: #a0aec0;
+        }
+        .video-toggle-btn {
+            position: absolute;
+            top: 10px; right: 10px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #fff;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 10px;
+            cursor: pointer;
         }
 
         /* Waveform / AI Speaking Indicator */
@@ -111,20 +188,21 @@
             align-items: center;
             justify-content: center;
             gap: 10px;
-            padding: 18px;
-            min-height: 60px;
+            padding: 14px;
+            min-height: 50px;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
         }
         .wave-bars {
             display: flex;
             align-items: center;
             gap: 3px;
-            height: 30px;
+            height: 20px;
         }
         .wave-bars .bar {
             width: 3px;
-            background: #7f5af0;
+            background: #9f7aea;
             border-radius: 2px;
-            height: 8px;
+            height: 6px;
             transition: height 0.1s;
         }
         .wave-bars.active .bar { animation: wave 0.6s ease-in-out infinite; }
@@ -133,53 +211,51 @@
         .wave-bars.active .bar:nth-child(3) { animation-delay: 0.2s; }
         .wave-bars.active .bar:nth-child(4) { animation-delay: 0.3s; }
         .wave-bars.active .bar:nth-child(5) { animation-delay: 0.4s; }
-        .wave-bars.active .bar:nth-child(6) { animation-delay: 0.3s; }
-        .wave-bars.active .bar:nth-child(7) { animation-delay: 0.2s; }
         @keyframes wave {
-            0%, 100% { height: 8px; }
-            50% { height: 28px; }
+            0%, 100% { height: 6px; }
+            50% { height: 18px; }
         }
         .ai-status-text {
-            font-size: 13px;
-            color: #72757e;
-            font-weight: 400;
+            font-size: 12px;
+            color: #718096;
+            font-weight: 500;
         }
-        .ai-status-text.speaking { color: #7f5af0; }
-        .ai-status-text.listening { color: #2cb67d; }
+        .ai-status-text.speaking { color: #9f7aea; }
+        .ai-status-text.listening { color: #38b2ac; }
 
         /* Transcription Area */
-        .transcript-section { padding: 16px 20px; }
+        .transcript-section { padding: 14px 18px; }
         .transcript-label {
-            font-size: 10px;
+            font-size: 9px;
             text-transform: uppercase;
             letter-spacing: 1.5px;
-            color: #555;
-            margin-bottom: 8px;
-            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 6px;
+            font-weight: 700;
         }
         .transcript-box {
-            padding: 12px 16px;
-            border-radius: 10px;
-            font-size: 14px;
-            line-height: 1.6;
-            min-height: 44px;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            line-height: 1.5;
+            min-height: 38px;
             display: flex;
             align-items: center;
             word-break: break-word;
         }
         .transcript-box.user {
-            background: rgba(44, 182, 125, 0.08);
-            border: 1px solid rgba(44, 182, 125, 0.15);
-            color: #8fd8b8;
+            background: rgba(56, 178, 172, 0.06);
+            border: 1px solid rgba(56, 178, 172, 0.12);
+            color: #81e6d9;
         }
         .transcript-box.ai {
-            background: rgba(127, 90, 240, 0.08);
-            border: 1px solid rgba(127, 90, 240, 0.15);
-            color: #bfa8f7;
-            margin-top: 10px;
+            background: rgba(159, 122, 234, 0.06);
+            border: 1px solid rgba(159, 122, 234, 0.12);
+            color: #d6bcfa;
+            margin-top: 8px;
         }
         .transcript-box .placeholder {
-            color: #444;
+            color: #4a5568;
             font-style: italic;
         }
 
@@ -187,102 +263,134 @@
         .controls {
             display: flex;
             justify-content: center;
-            gap: 16px;
-            padding: 0 20px;
+            gap: 12px;
+            padding: 0 18px 14px 18px;
         }
         .btn {
             flex: 1;
-            padding: 14px;
+            padding: 12px;
             border: none;
-            border-radius: 12px;
+            border-radius: 10px;
             font-family: 'Inter', sans-serif;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.25s;
+            transition: all 0.2s;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 6px;
         }
         .btn:disabled { opacity: 0.3; cursor: not-allowed; }
         .btn-start {
-            background: linear-gradient(135deg, #7f5af0, #6246c7);
+            background: linear-gradient(135deg, #9f7aea, #805ad5);
             color: white;
-            box-shadow: 0 4px 20px rgba(127,90,240,0.3);
+            box-shadow: 0 4px 14px rgba(159,122,234,0.3);
         }
         .btn-start:hover:not(:disabled) {
-            box-shadow: 0 6px 30px rgba(127,90,240,0.5);
+            box-shadow: 0 6px 20px rgba(159,122,234,0.4);
             transform: translateY(-1px);
         }
         .btn-stop {
-            background: rgba(239,68,68,0.15);
-            color: #ef4444;
-            border: 1px solid rgba(239,68,68,0.2);
+            background: rgba(229,62,98,0.15);
+            color: #e53e62;
+            border: 1px solid rgba(229,62,98,0.2);
         }
         .btn-stop:hover:not(:disabled) {
-            background: rgba(239,68,68,0.25);
+            background: rgba(229,62,98,0.25);
         }
 
         /* Log */
         .log-toggle {
             text-align: center;
-            padding: 6px;
+            padding: 4px;
         }
         .log-toggle button {
-            background: none; border: none; color: #555;
-            font-size: 11px; cursor: pointer; font-family: 'Inter';
+            background: none; border: none; color: #4a5568;
+            font-size: 10px; cursor: pointer; font-family: 'Inter';
         }
         .log-area {
             display: none;
-            max-height: 140px;
+            max-height: 120px;
             overflow-y: auto;
             padding: 10px 16px;
             font-family: 'JetBrains Mono', monospace;
-            font-size: 11px;
-            color: #5a5e6a;
-            line-height: 1.7;
-            border-top: 1px solid rgba(255,255,255,0.05);
+            font-size: 10px;
+            color: #4a5568;
+            line-height: 1.6;
+            border-top: 1px solid rgba(255,255,255,0.03);
         }
         .log-area.show { display: block; }
-        .log-area::-webkit-scrollbar { width: 4px; }
-        .log-area::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
     </style>
 </head>
 <body>
 
 <div class="app">
     <div class="header">
-        <h1>🤖 AI 多模态语音助手</h1>
-        <div class="subtitle">Powered by Gemini Live API · 实时语音 + 视觉</div>
+        <h1>🤖 双轨协同成本控制助手</h1>
+        <div class="subtitle">智能检测复杂度 · 分级路由节约成本</div>
+    </div>
+
+    <!-- Mode Selector -->
+    <div class="mode-selector">
+        <button class="mode-btn active" id="modeSmart" onclick="selectMode('smart')">💡 智能路由 (推荐)</button>
+        <button class="mode-btn" id="modeLive" onclick="selectMode('live')">🔥 强置高级轨 (Live)</button>
+        <button class="mode-btn" id="modeFree" onclick="selectMode('free')">🟢 强置免费轨 (REST)</button>
+    </div>
+
+    <!-- Cost Dashboard -->
+    <div class="cost-dashboard">
+        <div class="metric-card">
+            <span class="metric-label">当前模型 / 状态</span>
+            <span class="metric-val purple" id="dashboardModel">未运行</span>
+            <span class="metric-sub" id="dashboardTrack">-</span>
+        </div>
+        <div class="metric-card">
+            <span class="metric-label">累计节省金额</span>
+            <span class="metric-val green" id="dashboardSavings">$0.0000</span>
+            <span class="metric-sub">运营开销节省率</span>
+        </div>
+        <div class="metric-card">
+            <span class="metric-label">累计消耗金额</span>
+            <span class="metric-val" id="dashboardCost">$0.0000</span>
+            <span class="metric-sub">按云端标准计费</span>
+        </div>
+        <div class="metric-card">
+            <span class="metric-label">累计消耗 Token</span>
+            <span class="metric-val" id="dashboardTokens">0</span>
+            <span class="metric-sub" id="dashboardTokensDetail">I: 0 | O: 0</span>
+        </div>
     </div>
 
     <div class="status-bar">
         <div class="badge"><div class="dot" id="statusDot"></div><span id="statusText">未连接</span></div>
-        <div class="badge">🧠 gemini-3.1-flash-live</div>
+        <div class="badge" id="volBadge">🎤 音量: 0</div>
+        <div class="badge" id="errBadge" style="color: #fc8181; border-color: rgba(229,62,98,0.2)">⚠️ 异常: 0/5</div>
+        <div class="badge" id="savingsBadge" style="color: #38b2ac">📹 省帧: 0</div>
     </div>
 
     <div class="card">
         <div class="video-wrap">
             <video id="localVideo" autoplay playsinline muted></video>
-            <div class="video-overlay" id="videoInfo">📹 摄像头未开启</div>
+            <div class="video-overlay" id="videoInfo">📹 摄像头已关闭</div>
+            <button class="video-toggle-btn" id="videoToggleBtn" onclick="toggleCamera()">开启摄像头</button>
         </div>
 
         <div class="ai-indicator">
             <div class="wave-bars" id="waveBars">
                 <div class="bar"></div><div class="bar"></div><div class="bar"></div>
-                <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+                <div class="bar"></div><div class="bar"></div>
             </div>
-            <span class="ai-status-text" id="aiStatusText">等待连接...</span>
+            <span class="ai-status-text" id="aiStatusText">等待点击开始...</span>
         </div>
 
         <div class="transcript-section">
-            <div class="transcript-label">🎤 你说的</div>
+            <div class="transcript-label">🎤 用户说 (ASR)</div>
             <div class="transcript-box user" id="userTranscript">
                 <span class="placeholder">等待语音输入...</span>
             </div>
 
-            <div class="transcript-label" style="margin-top:14px">🤖 AI 回复</div>
+            <div class="transcript-label" style="margin-top:10px">🤖 AI 回复 (TTS)</div>
             <div class="transcript-box ai" id="aiTranscript">
                 <span class="placeholder">等待 AI 回应...</span>
             </div>
@@ -301,20 +409,53 @@
 </div>
 
 <script>
-// ============================
-// 全局状态
-// ============================
-let ws = null;
+// ==========================================
+// 1. 全局配置与状态
+// ==========================================
+let currentMode = 'smart'; // smart | live | free
+let activeTrack = 'idle'; // idle | free | live
+let isRunning = false;
+
+// 计费常量 (USD)
+const PREMIUM_INPUT_RATE = 0.075 / 1000000;
+const PREMIUM_OUTPUT_RATE = 0.30 / 1000000;
+const FREE_INPUT_RATE = 0;
+const FREE_OUTPUT_RATE = 0;
+
+// 历史累计数据
+let totalTokens = { input: 0, output: 0 };
+let totalCost = 0.0;
+let totalSavings = 0.0;
+
+// 音视频状态
 let mediaStream = null;
+let cameraActive = false;
+
+// Live 轨道状态
+let ws = null;
 let audioContext = null;
 let workletNode = null;
 let videoTimer = null;
-
-// 音频播放相关
 let playbackCtx = null;
-let audioQueue = [];
 let isPlaying = false;
 let nextPlayTime = 0;
+
+// Free 轨道状态
+let recognition = null;
+let ttsActive = false;
+
+// Hard Rules 成本控制状态
+let consecutiveAsrErrors = 0;
+let lastFrameData = null;
+let savedVideoFramesCount = 0; 
+let audioAnalyser = null;
+let micVolumeTimer = null;
+let maxVolumeThisTurn = 0;
+
+// DOM Badge Elements
+const volBadge = document.getElementById('volBadge');
+const errBadge = document.getElementById('errBadge');
+const savingsBadge = document.getElementById('savingsBadge');
 
 // DOM
 const startBtn = document.getElementById('startBtn');
@@ -327,7 +468,16 @@ const userTranscript = document.getElementById('userTranscript');
 const aiTranscript = document.getElementById('aiTranscript');
 const localVideo = document.getElementById('localVideo');
 const videoInfo = document.getElementById('videoInfo');
+const videoToggleBtn = document.getElementById('videoToggleBtn');
 const logArea = document.getElementById('logArea');
+
+// Dashboard DOM
+const dashboardModel = document.getElementById('dashboardModel');
+const dashboardTrack = document.getElementById('dashboardTrack');
+const dashboardSavings = document.getElementById('dashboardSavings');
+const dashboardCost = document.getElementById('dashboardCost');
+const dashboardTokens = document.getElementById('dashboardTokens');
+const dashboardTokensDetail = document.getElementById('dashboardTokensDetail');
 
 function log(msg) {
     const t = new Date().toLocaleTimeString();
@@ -335,29 +485,181 @@ function log(msg) {
     logArea.scrollTop = logArea.scrollHeight;
 }
 
-function setStatus(connected) {
-    statusDot.className = 'dot' + (connected ? ' connected' : '');
-    statusText.textContent = connected ? '已连接' : '未连接';
+function selectMode(mode) {
+    if (isRunning) {
+        log('⚠️ 对话进行中，请先结束再切换模式');
+        return;
+    }
+    currentMode = mode;
+    document.getElementById('modeSmart').classList.toggle('active', mode === 'smart');
+    document.getElementById('modeLive').classList.toggle('active', mode === 'live');
+    document.getElementById('modeFree').classList.toggle('active', mode === 'free');
+    log(`💡 模式切换为: ${mode === 'smart' ? '智能路由' : mode === 'live' ? '强置高级' : '强置免费'}`);
 }
 
-function setAIStatus(mode) {
-    aiStatusText.className = 'ai-status-text';
-    waveBars.className = 'wave-bars';
-    if (mode === 'speaking') {
-        aiStatusText.textContent = '🔊 AI 正在说话...';
-        aiStatusText.classList.add('speaking');
-        waveBars.classList.add('active');
-    } else if (mode === 'listening') {
-        aiStatusText.textContent = '🎧 正在聆听...';
-        aiStatusText.classList.add('listening');
+// ==========================================
+// 2. 成本看板计算逻辑
+// ==========================================
+function updateDashboard(modelName, trackType) {
+    dashboardModel.textContent = modelName;
+    dashboardTrack.textContent = trackType === 'live' ? '⚡ Premium Live 轨' : trackType === 'free' ? '🟢 Free REST 轨' : '未运行';
+    
+    if (trackType === 'live') {
+        dashboardModel.className = 'metric-val purple';
+    } else if (trackType === 'free') {
+        dashboardModel.className = 'metric-val green';
     } else {
-        aiStatusText.textContent = '等待连接...';
+        dashboardModel.className = 'metric-val';
+    }
+
+    dashboardTokens.textContent = totalTokens.input + totalTokens.output;
+    dashboardTokensDetail.textContent = `I: ${totalTokens.input} | O: ${totalTokens.output}`;
+    dashboardCost.textContent = `$${totalCost.toFixed(5)}`;
+    dashboardSavings.textContent = `$${totalSavings.toFixed(5)}`;
+}
+
+// 记录 Token 消耗并计算费用与节省
+function recordTokens(input, output, track) {
+    const inTokens = parseInt(input) || 0;
+    const outTokens = parseInt(output) || 0;
+
+    totalTokens.input += inTokens;
+    totalTokens.output += outTokens;
+
+    // 计算实际产生费用
+    let cost = 0;
+    if (track === 'live') {
+        cost = (inTokens * PREMIUM_INPUT_RATE) + (outTokens * PREMIUM_OUTPUT_RATE);
+        totalCost += cost;
+    } else if (track === 'free') {
+        cost = 0; // 免费轨计费为 0
+        totalCost += cost;
+
+        // 计算如果用 Live 轨会产生的费用，记为节省费用
+        const potentialLiveCost = (inTokens * PREMIUM_INPUT_RATE) + (outTokens * PREMIUM_OUTPUT_RATE);
+        totalSavings += potentialLiveCost;
+    }
+
+    updateDashboard(track === 'live' ? 'gemini-3.1-live' : 'gemini-3.1-lite', track);
+}
+
+// ==========================================
+// 3. 摄像头管理
+// ==========================================
+async function toggleCamera() {
+    if (cameraActive) {
+        // 关闭摄像头
+        if (mediaStream) {
+            mediaStream.getVideoTracks().forEach(track => track.stop());
+        }
+        localVideo.srcObject = null;
+        videoInfo.textContent = '📹 摄像头已关闭';
+        videoToggleBtn.textContent = '开启摄像头';
+        cameraActive = false;
+        log('📹 摄像头已手动关闭');
+    } else {
+        // 开启摄像头
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: { width: 320, height: 200, frameRate: 10 }
+            });
+            mediaStream = stream;
+            localVideo.srcObject = stream;
+            videoInfo.textContent = '📹 摄像头已开启';
+            videoToggleBtn.textContent = '关闭摄像头';
+            cameraActive = true;
+            log('📹 摄像头已成功开启');
+        } catch (err) {
+            log('❌ 开启摄像头失败: ' + err.message);
+        }
     }
 }
 
-// ============================
-// AudioWorklet Processor (inline)
-// ============================
+// ==========================================
+// 4. ASR & TTS (免费轨和智能路由器使用)
+// ==========================================
+function initSpeechRecognition() {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+        log('⚠️ 当前浏览器不支持原生 ASR (SpeechRecognition)');
+        return null;
+    }
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const rec = new SpeechRecognition();
+    rec.continuous = false;
+    rec.interimResults = false;
+    rec.lang = 'zh-CN';
+    return rec;
+}
+
+function speakTextFree(text, callback) {
+    if (!window.speechSynthesis) {
+        log('⚠️ 当前浏览器不支持原生 TTS (SpeechSynthesis)');
+        if (callback) callback();
+        return;
+    }
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'zh-CN';
+    
+    utterance.onstart = () => {
+        setAIStatus('speaking');
+        ttsActive = true;
+    };
+    utterance.onend = () => {
+        setAIStatus('listening');
+        ttsActive = false;
+        if (callback) callback();
+    };
+    utterance.onerror = (err) => {
+        console.error(err);
+        setAIStatus('listening');
+        ttsActive = false;
+        if (callback) callback();
+    };
+    window.speechSynthesis.speak(utterance);
+}
+
+// ==========================================
+// 5. 智能分类路由决策器
+// ==========================================
+function evaluateRoute(text) {
+    // 1. 如果摄像头开启，强绑定高级轨 (Live)，因为需要传递视频多模态数据
+    if (cameraActive) {
+        log('💡 [智能路由] 摄像头开启 -> 路由到 Premium Live 轨道');
+        return 'live';
+    }
+
+    // 2. 规则匹配
+    if (!text) return 'free';
+    
+    // 清除一切空格（防止 ASR 给汉字之间加空格导致长度计算与关键词判断失灵）
+    const cleanedText = text.replace(/\s+/g, '');
+    
+    // 如果字数超过 20 个字，判定为复杂长文本任务
+    if (cleanedText.length > 20) {
+        log(`💡 [智能路由] 字符长度 ${cleanedText.length} 较长 -> 路由到 Premium Live 轨道`);
+        return 'live';
+    }
+
+    // 复杂词汇判定
+    const complexKeywords = [
+        '代码', '写一', '编写', '分析', '设计', '算法', '如何', '为什么', 
+        '比较', '区别', '深度', '规划', '解释', 'code', 'write', 'program'
+    ];
+    const isComplex = complexKeywords.some(keyword => cleanedText.includes(keyword));
+
+    if (isComplex) {
+        log(`💡 [智能路由] 命中复杂关键词 "${cleanedText}" -> 路由到 Premium Live 轨道`);
+        return 'live';
+    }
+
+    log(`💡 [智能路由] 日常简单问答 "${cleanedText}" -> 路由到 Free REST 轨道 (完全免费)`);
+    return 'free';
+}
+
+// ==========================================
+// 6. 音频采集与播放 (仅 Live 轨使用)
+// ==========================================
 function createWorkletBlob() {
     const code = `
         class PCMProcessor extends AudioWorkletProcessor {
@@ -374,7 +676,6 @@ function createWorkletBlob() {
                 for (let i = 0; i < channelData.length; i++) {
                     this.buffer[this.writeIndex++] = channelData[i];
                     if (this.writeIndex >= this.bufferSize) {
-                        // 转换为 16-bit PCM
                         const pcm16 = new Int16Array(this.bufferSize);
                         for (let j = 0; j < this.bufferSize; j++) {
                             const s = Math.max(-1, Math.min(1, this.buffer[j]));
@@ -393,9 +694,6 @@ function createWorkletBlob() {
     return URL.createObjectURL(new Blob([code], { type: 'application/javascript' }));
 }
 
-// ============================
-// 音频采集 (16kHz PCM)
-// ============================
 async function startAudioCapture() {
     const stream = await navigator.mediaDevices.getUserMedia({
         audio: { sampleRate: 16000, channelCount: 1, echoCancellation: true, noiseSuppression: true }
@@ -410,8 +708,7 @@ async function startAudioCapture() {
 
     workletNode = new AudioWorkletNode(audioContext, 'pcm-processor');
     workletNode.port.onmessage = (e) => {
-        if (ws && ws.readyState === WebSocket.OPEN) {
-            // ArrayBuffer -> Base64
+        if (ws && ws.readyState === WebSocket.OPEN && activeTrack === 'live') {
             const bytes = new Uint8Array(e.data);
             let binary = '';
             for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
@@ -421,23 +718,18 @@ async function startAudioCapture() {
     };
 
     source.connect(workletNode);
-    workletNode.connect(audioContext.destination); // 需要连接才能运行
+    workletNode.connect(audioContext.destination);
 
     return stream;
 }
 
-// ============================
-// 音频播放 (24kHz PCM)
-// ============================
 function initPlayback() {
     playbackCtx = new AudioContext({ sampleRate: 24000 });
-    audioQueue = [];
     isPlaying = false;
     nextPlayTime = 0;
 }
 
 function enqueueAudio(base64Data) {
-    // Base64 -> Int16Array -> Float32
     const raw = atob(base64Data);
     const bytes = new Uint8Array(raw.length);
     for (let i = 0; i < raw.length; i++) bytes[i] = raw.charCodeAt(i);
@@ -447,7 +739,6 @@ function enqueueAudio(base64Data) {
         float32[i] = int16[i] / 32768.0;
     }
 
-    // 创建 AudioBuffer 并排队播放
     const buffer = playbackCtx.createBuffer(1, float32.length, 24000);
     buffer.getChannelData(0).set(float32);
 
@@ -466,7 +757,6 @@ function enqueueAudio(base64Data) {
         setAIStatus('speaking');
     }
 
-    // 当这段播放完后检查是否结束
     source.onended = () => {
         if (playbackCtx.currentTime >= nextPlayTime - 0.05) {
             isPlaying = false;
@@ -476,17 +766,39 @@ function enqueueAudio(base64Data) {
 }
 
 function clearPlaybackQueue() {
-    // 重置播放上下文以实现打断
-    if (playbackCtx) {
-        playbackCtx.close();
-    }
+    if (playbackCtx) playbackCtx.close();
     initPlayback();
     isPlaying = false;
 }
 
-// ============================
-// 视频帧采集
-// ============================
+function detectMotion(ctx, width, height) {
+    const imgData = ctx.getImageData(0, 0, width, height);
+    const data = imgData.data;
+    
+    if (!lastFrameData) {
+        lastFrameData = new Uint8ClampedArray(data);
+        return true; 
+    }
+    
+    let diff = 0;
+    const totalPixels = width * height;
+    
+    for (let i = 0; i < data.length; i += 32) {
+        const rDiff = Math.abs(data[i] - lastFrameData[i]);
+        const gDiff = Math.abs(data[i+1] - lastFrameData[i+1]);
+        const bDiff = Math.abs(data[i+2] - lastFrameData[i+2]);
+        
+        if ((rDiff + gDiff + bDiff) > 60) {
+            diff++;
+        }
+    }
+    
+    lastFrameData.set(data);
+    
+    const diffPercentage = (diff / (totalPixels / 8)) * 100;
+    return diffPercentage > 1.0; 
+}
+
 function startVideoCapture() {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
@@ -494,139 +806,454 @@ function startVideoCapture() {
     canvas.height = 200;
 
     videoTimer = setInterval(() => {
-        if (ws && ws.readyState === WebSocket.OPEN) {
+        if (ws && ws.readyState === WebSocket.OPEN && activeTrack === 'live' && cameraActive) {
             ctx.drawImage(localVideo, 0, 0, canvas.width, canvas.height);
-            const dataUrl = canvas.toDataURL('image/jpeg', 0.4);
-            const b64 = dataUrl.split(',')[1];
-            ws.send(JSON.stringify({ type: 'video', data: b64 }));
+            
+            const hasMotion = detectMotion(ctx, canvas.width, canvas.height);
+            
+            if (hasMotion) {
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.4);
+                const b64 = dataUrl.split(',')[1];
+                ws.send(JSON.stringify({ type: 'video', data: b64 }));
+            } else {
+                savedVideoFramesCount++;
+                savingsBadge.textContent = `📹 省帧: ${savedVideoFramesCount}`;
+                
+                const savedCost = 258 * PREMIUM_INPUT_RATE;
+                totalSavings += savedCost;
+                dashboardSavings.textContent = `$${totalSavings.toFixed(5)}`;
+                
+                if (savedVideoFramesCount % 5 === 0) {
+                    log(`📹 [静态过滤] 画面无显著运动，跳过该帧。累计省下 ${savedVideoFramesCount} 帧`);
+                }
+            }
         }
-    }, 1000); // 1fps 节省 token
+    }, 1000);
 }
 
-// ============================
-// 主逻辑
-// ============================
-startBtn.onclick = async () => {
+// ==========================================
+// 7. 交互生命周期控制
+// ==========================================
+function setStatus(connected) {
+    statusDot.className = 'dot' + (connected ? ' connected' : '');
+    statusText.textContent = connected ? '已连接' : '未连接';
+}
+
+function setAIStatus(mode) {
+    aiStatusText.className = 'ai-status-text';
+    waveBars.className = 'wave-bars';
+    if (mode === 'speaking') {
+        aiStatusText.textContent = '🔊 AI 正在回答...';
+        aiStatusText.classList.add('speaking');
+        waveBars.classList.add('active');
+    } else if (mode === 'listening') {
+        aiStatusText.textContent = '🎧 正在聆听...';
+        aiStatusText.classList.add('listening');
+    } else {
+        aiStatusText.textContent = '空闲';
+    }
+}
+
+let micStream = null;
+
+async function startVolumeMonitor() {
     try {
-        startBtn.disabled = true;
-        log('正在请求音视频权限...');
-
-        // 尝试获取摄像头（可选，失败则纯语音模式）
-        try {
-            mediaStream = await navigator.mediaDevices.getUserMedia({
-                video: { width: 640, height: 400, frameRate: 15 }
-            });
-            localVideo.srcObject = mediaStream;
-            videoInfo.textContent = '📹 摄像头已开启';
-            log('✅ 摄像头已开启');
-        } catch (camErr) {
-            log('⚠️ 摄像头不可用，将以纯语音模式运行: ' + camErr.message);
-            videoInfo.textContent = '📹 摄像头不可用（纯语音模式）';
-            mediaStream = new MediaStream(); // 空流占位
-        }
-
-        // 初始化音频播放
-        initPlayback();
-
-        // 连接 WebSocket
-        log('正在连接后端...');
-        ws = new WebSocket('ws://localhost:8080');
-
-        ws.onopen = async () => {
-            log('✅ 已连接后端中继服务器');
-            setStatus(true);
-            // 等待 Gemini ready
-        };
-
-        ws.onmessage = async (event) => {
-            const msg = JSON.parse(event.data);
-
-            if (msg.type === 'ready') {
-                log('🎯 Gemini Live API 就绪，开始音频采集');
-                // 启动音频采集
-                const audioStream = await startAudioCapture();
-                // 合并音频轨道到 mediaStream
-                audioStream.getAudioTracks().forEach(t => mediaStream.addTrack(t));
-                // 仅在摄像头可用时启动视频帧发送
-                if (mediaStream.getVideoTracks().length > 0) {
-                    startVideoCapture();
-                    log('📹 视频帧采集已启动 (1fps)');
-                }
-                setAIStatus('listening');
-                stopBtn.disabled = false;
-                log('🎙️ 开始实时语音交互，请说话...');
+        micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const source = audioCtx.createMediaStreamSource(micStream);
+        audioAnalyser = audioCtx.createAnalyser();
+        audioAnalyser.fftSize = 64;
+        source.connect(audioAnalyser);
+        
+        const bufferLength = audioAnalyser.frequencyBinCount;
+        const dataArray = new Uint8Array(bufferLength);
+        
+        maxVolumeThisTurn = 0;
+        
+        micVolumeTimer = setInterval(() => {
+            if (!isRunning) return;
+            audioAnalyser.getByteFrequencyData(dataArray);
+            let sum = 0;
+            for (let i = 0; i < bufferLength; i++) {
+                sum += dataArray[i];
             }
-
-            if (msg.type === 'audio') {
-                enqueueAudio(msg.data);
+            const avg = Math.round(sum / bufferLength);
+            
+            volBadge.textContent = `🎤 音量: ${avg}`;
+            if (avg > maxVolumeThisTurn) {
+                maxVolumeThisTurn = avg;
             }
-
-            if (msg.type === 'input_transcription') {
-                userTranscript.innerHTML = msg.text;
-            }
-
-            if (msg.type === 'output_transcription') {
-                aiTranscript.innerHTML = msg.text;
-            }
-
-            if (msg.type === 'turn_complete') {
-                setAIStatus('listening');
-                log('✅ AI 回复完成');
-            }
-
-            if (msg.type === 'interrupted') {
-                clearPlaybackQueue();
-                setAIStatus('listening');
-                log('⚡ 用户打断了 AI');
-            }
-
-            if (msg.type === 'error') {
-                log('❌ ' + msg.text);
-            }
-
-            if (msg.type === 'gemini_disconnected') {
-                log('🔌 Gemini 连接已断开');
-                stopAll();
-            }
-        };
-
-        ws.onclose = () => {
-            setStatus(false);
-            log('🔌 后端连接断开');
-            stopAll();
-        };
-
-        ws.onerror = (e) => {
-            log('❌ WebSocket 错误');
-        };
-
+        }, 100);
     } catch (err) {
-        log('❌ 启动失败: ' + err.message);
-        startBtn.disabled = false;
+        log("⚠️ 无法开启麦克风音量监控: " + err.message);
+    }
+}
+
+function stopVolumeMonitor() {
+    if (micVolumeTimer) {
+        clearInterval(micVolumeTimer);
+        micVolumeTimer = null;
+    }
+    if (micStream) {
+        micStream.getTracks().forEach(track => track.stop());
+        micStream = null;
+    }
+    volBadge.textContent = "🎤 音量: 0";
+}
+
+function handleAsrFailure() {
+    if (!isRunning) return;
+    consecutiveAsrErrors++;
+    errBadge.textContent = `⚠️ 异常: ${consecutiveAsrErrors}/5`;
+    log(`⚠️ 本地识别异常计数增加: ${consecutiveAsrErrors}/5 (本次最大音量: ${maxVolumeThisTurn})`);
+    
+    if (consecutiveAsrErrors >= 5) {
+        log("🚨 本地识别异常连续达到 5 次，系统自动升级至云端 Live 轨！");
+        switchToCloudLive();
+    } else {
+        setTimeout(() => {
+            if (isRunning) {
+                if (activeTrack === 'smart') {
+                    runSmartRouteTrack();
+                } else if (activeTrack === 'free') {
+                    runFreeTrack();
+                }
+            }
+        }, 1000);
+    }
+}
+
+async function switchToCloudLive() {
+    consecutiveAsrErrors = 0;
+    errBadge.textContent = "⚠️ 异常: 0/5";
+    
+    if (recognition) {
+        recognition.abort();
+    }
+    
+    currentMode = 'live';
+    activeTrack = 'live';
+    
+    document.getElementById('modeSmart').classList.remove('active');
+    document.getElementById('modeLive').classList.add('active');
+    document.getElementById('modeFree').classList.remove('active');
+    
+    log("⚡ 已自动重连并切入 Premium Live 轨...");
+    await runLiveTrack();
+}
+
+// --- 启动对话总入口 ---
+startBtn.onclick = async () => {
+    isRunning = true;
+    startBtn.disabled = true;
+    stopBtn.disabled = false;
+    log(`🚀 启动会话模式: [${currentMode}]`);
+
+    userTranscript.innerHTML = '<span class="placeholder">正在唤醒麦克风...</span>';
+    aiTranscript.innerHTML = '<span class="placeholder">等待 AI 回应...</span>';
+
+    // 初始化重置指标
+    consecutiveAsrErrors = 0;
+    errBadge.textContent = "⚠️ 异常: 0/5";
+    savedVideoFramesCount = 0;
+    savingsBadge.textContent = "📹 省帧: 0";
+    lastFrameData = null;
+
+    // 开启音量监控
+    await startVolumeMonitor();
+
+    if (currentMode === 'live') {
+        activeTrack = 'live';
+        await runLiveTrack();
+    } else if (currentMode === 'free') {
+        activeTrack = 'free';
+        await runFreeTrack();
+    } else {
+        activeTrack = 'smart';
+        await runSmartRouteTrack();
     }
 };
 
+// --- 高级 Live 轨道工作流程 ---
+async function runLiveTrack() {
+    updateDashboard('gemini-3.1-live', 'live');
+    log('🔗 正在建立高级 Live 轨道...');
+
+    initPlayback();
+
+    ws = new WebSocket('ws://localhost:8080');
+    ws.onopen = () => {
+        log('✅ 已连接 WebSocket 中继');
+        setStatus(true);
+    };
+
+    ws.onmessage = async (event) => {
+        const msg = JSON.parse(event.data);
+
+        if (msg.type === 'ready') {
+            log('🎯 Live API 就绪');
+            const audioStream = await startAudioCapture();
+            if (mediaStream) {
+                audioStream.getAudioTracks().forEach(t => mediaStream.addTrack(t));
+            } else {
+                mediaStream = audioStream;
+            }
+            if (cameraActive) {
+                startVideoCapture();
+                log('📹 Live 视频帧采集已启动');
+            }
+            setAIStatus('listening');
+        }
+
+        if (msg.type === 'audio') {
+            enqueueAudio(msg.data);
+        }
+
+        if (msg.type === 'input_transcription') {
+            if (userTranscript.querySelector('.placeholder')) {
+                userTranscript.textContent = '';
+            }
+            userTranscript.textContent = msg.text;
+            aiTranscript.textContent = '...'; // 用户说话时，清除AI上一轮的回答，并显示加载提示
+        }
+
+        if (msg.type === 'output_transcription') {
+            if (aiTranscript.querySelector('.placeholder') || aiTranscript.textContent === '...') {
+                aiTranscript.textContent = '';
+            }
+            aiTranscript.textContent += msg.text; // 累加流式输出字词
+        }
+
+        if (msg.type === 'usage') {
+            const usage = msg.usageMetadata || {};
+            const promptTokens = usage.promptTokenCount || usage.prompt_token_count || 0;
+            const candidatesTokens = usage.candidatesTokenCount || usage.candidates_token_count || 0;
+            recordTokens(promptTokens, candidatesTokens, 'live');
+        }
+
+        if (msg.type === 'turn_complete') {
+            setAIStatus('listening');
+        }
+
+        if (msg.type === 'interrupted') {
+            clearPlaybackQueue();
+            setAIStatus('listening');
+            aiTranscript.textContent += ' ⚡ [已打断]';
+        }
+
+        if (msg.type === 'gemini_disconnected') {
+            log('🔌 Live 服务端断开');
+            stopAll();
+        }
+    };
+
+    ws.onclose = () => {
+        setStatus(false);
+        log('🔌 WebSocket 连接已关闭');
+    };
+}
+
+// --- 免费 REST 轨道工作流程 ---
+async function runFreeTrack() {
+    updateDashboard('gemini-3.1-lite', 'free');
+    log('🎙️ [Free Track] 初始化原生语音识别...');
+
+    maxVolumeThisTurn = 0;
+    let hasResultThisTurn = false;
+
+    recognition = initSpeechRecognition();
+    if (!recognition) {
+        log('❌ 原生识别未就绪，降级为文本输入，请查看控制台');
+        return;
+    }
+
+    recognition.onresult = async (event) => {
+        hasResultThisTurn = true;
+        const text = event.results[0][0].transcript;
+        userTranscript.textContent = text;
+        log(`🎤 语音输入: "${text}"`);
+        
+        consecutiveAsrErrors = 0;
+        errBadge.textContent = "⚠️ 异常: 0/5";
+        
+        setAIStatus('speaking');
+        aiTranscript.innerHTML = '<span class="placeholder">正在生成低成本回答...</span>';
+
+        try {
+            const res = await fetch('http://localhost:8080/api/chat-free', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text })
+            });
+
+            if (!res.ok) throw new Error('API Request Failed');
+            const data = await res.json();
+            
+            aiTranscript.textContent = data.reply;
+            
+            const usage = data.usageMetadata || {};
+            const promptTokens = usage.promptTokenCount || usage.prompt_token_count || 0;
+            const candidatesTokens = usage.candidatesTokenCount || usage.candidates_token_count || 0;
+            recordTokens(promptTokens, candidatesTokens, 'free');
+
+            speakTextFree(data.reply, () => {
+                if (isRunning && activeTrack === 'free') {
+                    runFreeTrack();
+                }
+            });
+
+        } catch (err) {
+            log('❌ 免费问答发生错误: ' + err.message);
+            aiTranscript.textContent = '出错: ' + err.message;
+            setAIStatus('listening');
+            handleAsrFailure();
+        }
+    };
+
+    recognition.onerror = (event) => {
+        if (event.error !== 'no-speech') {
+            log(`🎤 本地 ASR 异常: ${event.error}`);
+        }
+        handleAsrFailure();
+    };
+
+    recognition.onend = () => {
+        if (isRunning && activeTrack === 'free' && !hasResultThisTurn && !ttsActive) {
+            handleAsrFailure();
+        }
+    };
+
+    recognition.start();
+}
+
+// --- 智能路由轨道工作流程 ---
+async function runSmartRouteTrack() {
+    updateDashboard('智能分析中...', 'smart');
+    log('🧠 [Smart Route] 开启首轮监听并判断复杂度...');
+
+    maxVolumeThisTurn = 0;
+    let hasResultThisTurn = false;
+
+    recognition = initSpeechRecognition();
+    if (!recognition) {
+        log('❌ 原生识别不可用，强置 Live');
+        activeTrack = 'live';
+        await runLiveTrack();
+        return;
+    }
+
+    recognition.onresult = async (event) => {
+        hasResultThisTurn = true;
+        const text = event.results[0][0].transcript;
+        userTranscript.textContent = text;
+        log(`🧠 识别输入: "${text}"`);
+
+        consecutiveAsrErrors = 0;
+        errBadge.textContent = "⚠️ 异常: 0/5";
+
+        const choice = evaluateRoute(text);
+
+        if (choice === 'live') {
+            activeTrack = 'live';
+            log('⚡ 切换至高级 Live 轨 (开启 WebSocket 直连)');
+            
+            recognition.abort();
+            await runLiveTrack();
+
+            const sendPromptTimer = setInterval(() => {
+                if (ws && ws.readyState === WebSocket.OPEN) {
+                    clearInterval(sendPromptTimer);
+                    ws.send(JSON.stringify({
+                        type: 'audio',
+                        data: '' 
+                    }));
+                    log('📤 智能连接至 Live 实时音频流');
+                }
+            }, 100);
+
+        } else {
+            activeTrack = 'free';
+            log('🟢 保持在低成本 Free REST 轨运行');
+            
+            setAIStatus('speaking');
+            aiTranscript.innerHTML = '<span class="placeholder">正在生成低成本回答...</span>';
+
+            try {
+                const res = await fetch('http://localhost:8080/api/chat-free', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text })
+                });
+
+                const data = await res.json();
+                aiTranscript.textContent = data.reply;
+                
+                const usage = data.usageMetadata || {};
+                const promptTokens = usage.promptTokenCount || usage.prompt_token_count || 0;
+                const candidatesTokens = usage.candidatesTokenCount || usage.candidates_token_count || 0;
+                recordTokens(promptTokens, candidatesTokens, 'free');
+
+                speakTextFree(data.reply, () => {
+                    if (isRunning) {
+                        activeTrack = 'smart';
+                        runSmartRouteTrack();
+                    }
+                });
+            } catch (err) {
+                log('❌ 免费轨获取失败: ' + err.message);
+                setAIStatus('listening');
+                handleAsrFailure();
+            }
+        }
+    };
+
+    recognition.onerror = (event) => {
+        if (event.error !== 'no-speech') {
+            log(`🎤 本地 ASR 异常: ${event.error}`);
+        }
+        handleAsrFailure();
+    };
+
+    recognition.onend = () => {
+        if (isRunning && activeTrack === 'smart' && !hasResultThisTurn) {
+            handleAsrFailure();
+        }
+    };
+
+    recognition.start();
+}
+
+// --- 结束会话逻辑 ---
 function stopAll() {
+    isRunning = false;
+    activeTrack = 'idle';
+
+    // 停止音量监控与清空相关缓存
+    stopVolumeMonitor();
+    lastFrameData = null;
+
+    // 1. 关闭 Live 轨道资源
+    if (ws) { ws.close(); ws = null; }
     if (videoTimer) { clearInterval(videoTimer); videoTimer = null; }
     if (workletNode) { workletNode.disconnect(); workletNode = null; }
     if (audioContext) { audioContext.close(); audioContext = null; }
     if (playbackCtx) { playbackCtx.close(); playbackCtx = null; }
-    if (mediaStream) {
-        mediaStream.getTracks().forEach(t => t.stop());
-        mediaStream = null;
-    }
-    localVideo.srcObject = null;
-    videoInfo.textContent = '📹 摄像头未开启';
+
+    // 2. 关闭 Free 轨道资源
+    if (recognition) { recognition.abort(); recognition = null; }
+    if (window.speechSynthesis) { window.speechSynthesis.cancel(); }
+
     setAIStatus('idle');
     setStatus(false);
+    
     startBtn.disabled = false;
     stopBtn.disabled = true;
+    updateDashboard('已结束', 'idle');
+    log('⏹️ 会话已完全结束');
 }
 
 stopBtn.onclick = () => {
-    if (ws) { ws.close(); ws = null; }
     stopAll();
-    log('已手动断开连接');
 };
 </script>
 </body>
