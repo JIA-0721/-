@@ -26,6 +26,6 @@
 - 视觉动态帧率（Frame-Skipping）： 采用图像帧差法。画面静止时，视频流降底至 1fps；检测到画面突变（如物体移动）时自动提升至 5fps，最大化节省视觉 Token。
 - 模型路由与滑窗： 云端核心采用主流高性价比的 [如 Gemini 2.0 Flash / GPT-4o-mini]，并对历史视觉上下文实施动态滑窗清理，防止 Token 膨胀。
 ## 技术栈
-前端： HTML5
-后端： Java
-AI端： Gemeni Live API
+- 前端： HTML5
+- 后端： JavaScript
+- AI端： Gemeni Live API
